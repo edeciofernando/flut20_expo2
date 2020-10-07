@@ -22,7 +22,7 @@ class _FormExpoState extends State<FormExpo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nova Exposição'),
+        title: Text('Inclusão de Exposições'),
       ),
       body: _body(),
       floatingActionButton: FloatingActionButton(
@@ -64,10 +64,17 @@ class _FormExpoState extends State<FormExpo> {
           ),
           Row(
             children: <Widget>[
+              IconButton(
+                color: Colors.blue,
+                icon: Icon(Icons.photo_camera),
+                onPressed: () {
+                  _getImage();
+                },
+              ),
               Expanded(
                 child: TextFormField(
                   controller: _edFoto,
-                  keyboardType: TextInputType.name,
+                  keyboardType: TextInputType.url,
                   style: TextStyle(
                     fontSize: 20,
                   ),
@@ -76,16 +83,14 @@ class _FormExpoState extends State<FormExpo> {
                   ),
                 ),
               ),
-              IconButton(
-                color: Colors.blue,
-                icon: Icon(Icons.photo_camera),
-                onPressed: _getImage,
-              ),
             ],
+          ),
+          SizedBox(
+            height: 10,
           ),
           Expanded(
             child: _image == null
-                ? Text('No image selected.')
+                ? Text('Clique no botão da câmera para fotografar')
                 : Image.file(
                     _image,
                     fit: BoxFit.cover,
@@ -95,13 +100,12 @@ class _FormExpoState extends State<FormExpo> {
             height: 10,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Container(
-                height: 60,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.red.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: FlatButton(
                   onPressed: () {
@@ -111,19 +115,19 @@ class _FormExpoState extends State<FormExpo> {
                     'Salvar Imagem',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 18,
                     ),
                   ),
                 ),
               ),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               Container(
-                height: 60,
+                height: 40,
                 decoration: BoxDecoration(
                   color: Colors.blue.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: FlatButton(
                   onPressed: () {
@@ -133,7 +137,7 @@ class _FormExpoState extends State<FormExpo> {
                     'Cadastrar',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -146,29 +150,50 @@ class _FormExpoState extends State<FormExpo> {
   }
 
   Future<void> _gravaDados() async {
-    if (_edLocal.text == '' || _edFoto.text == '') {
+    if (_edLocal.text == '' || _edCidade.text == '' || _edFoto.text == '') {
       showDialog(
-          context: context,
-          builder: (_) => new AlertDialog(
-                title: new Text("Entrada Proibida"),
-                content: new Text("Por favor, Aguarde..."),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Ok'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              ));
+        context: context,
+        builder: (_) => new AlertDialog(
+          title: new Text("Atenção:"),
+          content: new Text("Por favor, preencha todos os campos..."),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
+      );
       return;
     }
 
     await Firestore.instance.collection('expos').add({
       'local': _edLocal.text,
       'cidade': _edCidade.text,
-      'foto': _edFoto.text
+      'foto': _edFoto.text,
     });
+
+    _edLocal.text = '';
+    _edCidade.text = '';
+    _edFoto.text = '';
+
+    showDialog(
+      context: context,
+      builder: (_) => new AlertDialog(
+        title: new Text("Parabéns!!"),
+        content: new Text("Exposição cadastrada com sucesso"),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 
   Future _getImage() async {
@@ -185,15 +210,16 @@ class _FormExpoState extends State<FormExpo> {
 
   Future _salvaFoto() async {
     if (_image != null) {
-      final StorageUploadTask uploadTask =
-          FirebaseStorage.instance.ref().child('foto1').putFile(_image);
+      final StorageUploadTask uploadTask = FirebaseStorage.instance
+          .ref()
+          .child(
+            DateTime.now().millisecondsSinceEpoch.toString(),
+          )
+          .putFile(_image);
 
       StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
       String url = await taskSnapshot.ref.getDownloadURL();
       _edFoto.text = url;
-      print(url);
-    } else {
-      print('No image selected.');
     }
   }
 }

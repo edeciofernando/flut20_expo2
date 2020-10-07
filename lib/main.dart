@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'App Exposições',
+      title: 'App Cadastro de Exposições',
       home: HomePage(),
     );
   }

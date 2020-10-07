@@ -7,7 +7,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de Exposições de Erva Mate'),
+        title: Text('Material App Bar'),
       ),
       body: _body(context),
       floatingActionButton: FloatingActionButton(
@@ -17,8 +17,8 @@ class HomePage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => FormExpo()),
           );
         },
-        tooltip: 'Novo Local',
-        child: const Icon(Icons.add),
+        tooltip: 'Nova Exposição',
+        child: const Icon(Icons.add_a_photo),
       ),
     );
   }
@@ -43,8 +43,9 @@ class HomePage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(expos[index].data['foto']),
+                          backgroundImage: NetworkImage(
+                            expos[index].data['foto'],
+                          ),
                         ),
                         title: Text(expos[index].data['local']),
                         subtitle: Text(expos[index].data['cidade']),
